@@ -1,12 +1,16 @@
 """Builds index.html (self-contained) from results.json + figures/ + code chunks of analysis.py."""
 import json, base64, html, re, math
-R = json.load(open("results.json")); SRC = open("analysis.py").read()
+with open("results.json", encoding="utf-8") as f:
+    R = json.load(f)
+with open("analysis.py", encoding="utf-8") as f:
+    SRC = f.read()
 CODE = {m.group(1): m.group(2).strip() for m in re.finditer(r"#%% (\w+)[^\n]*\n(.*?)(?=\n#%% |\Z)", SRC, re.S)}
 esc = html.escape
 f3 = lambda x, d=3: f"{x:,.{d}f}"
 def pv(p): return "&lt; 0.001" if p < 1e-3 else f"{p:.3f}"
 def fig(name, cap):
-    b = base64.b64encode(open(f"figures/{name}.png", "rb").read()).decode()
+    with open(f"figures/{name}.png", "rb") as f:
+        b = base64.b64encode(f.read()).decode()
     return f'<figure><img loading="lazy" src="data:image/png;base64,{b}" alt="{esc(cap)}"><figcaption>{cap}</figcaption></figure>'
 def tbl(head, rows):
     return '<div class="tw"><table><thead><tr>' + "".join(f"<th>{h}</th>" for h in head) + "</tr></thead><tbody>" + "".join("<tr>" + "".join(f"<td>{c}</td>" for c in r) + "</tr>" for r in rows) + "</tbody></table></div>"
@@ -153,9 +157,10 @@ DATA_DIR=LTS/data_use_cases python analysis.py   # writes results.json + figures
 python build_site.py                             # writes index.html</code></pre></article></section>'''
 
 nav = "".join(f'<a href="#{i}">{t}</a>' for i, t in [("m1", "1 · Intro"), ("m2", "2 · Descriptive"), ("m3", "3 · Inferential"), ("m4", "4 · Regression"), ("m5", "5 · Anomaly"), ("m6", "6 · Time series"), ("limits", "Limits")])
-CSS = open("site.css").read()
+with open("site.css", encoding="utf-8") as f:
+    CSS = f.read()
 page = f'''<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Wildlife Trafficking Listings: Applied Data Science</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sniglet:wght@400;800&amp;display=swap"><style>{CSS}</style></head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&amp;family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&amp;display=swap"><style>{CSS}</style></head><body>
 <nav>{nav}</nav>
 <header class="hero"><div class="bub b1">Applied Data Science · CEPEC7041</div><h1>Wildlife<br>Trafficking<br>Listings</h1><div class="bub b2">An evidence-based analysis of {m1['rows']:,} marketplace listings</div>
 <p class="lead">Six syllabus modules, one real dataset (VIDA-NYU/LTS). Every number on this page was computed by <code>analysis.py</code>; nothing is hand-entered.</p>{SQ}</header>
@@ -164,4 +169,6 @@ page = f'''<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name
 <div class="pill wide"><p>The dataset comes from a paper on detecting wildlife trafficking in online marketplaces. The primary table is <code>shark_trophy.csv</code> (title, description, price, seller location, retrieval time, binary label). The syllabus (Applied Data Science, B.Tech Computer Engineering) defines the tasks: Module 1 process and validation, 2 descriptive statistics, 3 inferential statistics, 4 regression, 5 anomaly detection, 6 time series.</p></div></section>
 {s1}{s2}{s3}{s4}{s5}{s6}{s7}</main>
 <footer class="hero end"><h1>Thank You</h1><div class="bub b2">Protecting wildlife starts with understanding the data</div></footer></body></html>'''
-open("index.html", "w").write(page); print(len(page) / 1e6, "MB")
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(page)
+print(len(page) / 1e6, "MB")
