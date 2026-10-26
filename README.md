@@ -32,12 +32,9 @@ python -m pip install -r requirements.txt
 
 ## Get the data
 
-Clone the public VIDA-NYU/LTS repository alongside this project (or choose
-another location):
-
-```bash
-git clone https://github.com/VIDA-NYU/LTS.git
-```
+The CSV files are not included in this repository. Clone the public
+[VIDA-NYU/LTS repository](https://github.com/VIDA-NYU/LTS) next to this
+project, or set `DATA_DIR` to another directory containing the files below.
 
 The analysis expects these files in the repository's `data_use_cases/`
 directory:
@@ -47,37 +44,43 @@ directory:
 - `data_leather.csv`
 - `leather_validation.csv`
 
-If the data is somewhere else, set `DATA_DIR` to the directory containing
-those four files. The default is `data_use_cases` relative to the current
-working directory.
+`DATA_DIR` must point to the directory containing the four CSV files (not to
+the `LTS` repository root). If it is not set, the analysis looks for
+`data_use_cases` relative to the current working directory.
 
 ## Run the project
 
-Run these commands from the project root, in order. The analysis reads the CSV
-files, writes `results.json` and chart images into `figures/`; the report
-builder then embeds those outputs and the analysis code in `index.html`.
+Run the commands from the project root. The first step clones the data
+repository into a sibling folder named `LTS`. Install dependencies and run the
+analysis before building the report: the analysis reads the CSV files and
+generates `results.json` and chart images in `figures/`, which the report
+builder embeds along with code from `analysis.py` into `index.html`. Running
+these scripts again replaces the generated outputs.
 
 ### Windows PowerShell
 
 ```powershell
+git clone https://github.com/VIDA-NYU/LTS.git ..\LTS
+python -m pip install -r requirements.txt
 $env:DATA_DIR = "..\LTS\data_use_cases"
 python analysis.py
 python build_site.py
 ```
 
-Adjust the `DATA_DIR` path if you cloned the dataset to a different location.
-
 ### macOS or Linux
 
 ```bash
+git clone https://github.com/VIDA-NYU/LTS.git ../LTS
+python -m pip install -r requirements.txt
 DATA_DIR=../LTS/data_use_cases python analysis.py
 python build_site.py
 ```
 
-Open `index.html` in a web browser to read the report. Its charts are embedded,
-so the generated page does not need the image files at viewing time. Google
-Fonts are loaded from the web; system font fallbacks are used if they are
-unavailable.
+If you cloned the data elsewhere, replace the `DATA_DIR` value with that
+directory. Open the generated `index.html` in a browser to read the report.
+Charts are embedded, so the image files are not needed to view the page.
+Google Fonts are loaded from the web; system font fallbacks are used if they
+are unavailable.
 
 ## Analysis overview
 
